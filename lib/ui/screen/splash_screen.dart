@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> moveToNextScreen() async {
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 3));
     bool isuserLoggedIn = await AuthColtroller.isUserLoggedIn();
     if(isuserLoggedIn){
       Navigator.pushReplacementNamed(context, MainBottomNavScreen.name);
@@ -36,9 +36,9 @@ class _SplashScreenState extends State<SplashScreen> {
     return const Scaffold(
       body: ScreenBackground(
         child: Center(
-          child: AppLogo(),
+          child:  AppLogo(),
         ),
-      ),
-    );
+        ),
+      );
   }
 }

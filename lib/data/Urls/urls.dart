@@ -12,4 +12,7 @@ class Urls {
   static String deleteTaskUrl(String id) =>
       '$_baseUrl/deleteTask/$id';
   static const String updateProfile = '$_baseUrl/profileUpdate';
+ static  String verifyEnailUrl(String email) => '$_baseUrl/RecoverVerifyEmail/$email';
+ static  String verifyOtpEnailUrl(String email,String otp) => '$_baseUrl/RecoverVerifyOTP/$email/$otp';
+ static const String recoverPassword = '$_baseUrl/RecoverResetPass';
 }

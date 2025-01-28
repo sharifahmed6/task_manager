@@ -30,7 +30,7 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _getTaskCountByStatus();
+    _taskListSummeryDelayed();
     _taskListDelayed();
   }
 
@@ -39,7 +39,6 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
     return Scaffold(
       appBar: const TMAppBar(),
       body: ScreenBackground(
-        child: SingleChildScrollView(
           child: Column(
             children: [
               _buildTaskSummeryByStatus(),
@@ -53,7 +52,6 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
               )
             ],
           ),
-        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -138,12 +136,20 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
     setState(() {});
   }
 
-  Future<void> _taskListDelayed() async{
-    await Future.delayed(Duration(seconds: 2));
+  Future<void> _taskListSummeryDelayed() async{
+    await Future.delayed(Duration(seconds: 1));
   bool isUserLogin = await AuthColtroller.isUserLoggedIn();
   if(isUserLogin){
 
-    _getListCountByStatus();
+    _getTaskCountByStatus();
   }
+  }
+  Future<void> _taskListDelayed() async{
+    await Future.delayed(Duration(seconds: 2));
+    bool isUserLogin = await AuthColtroller.isUserLoggedIn();
+    if(isUserLogin){
+
+      _getListCountByStatus();
+    }
   }
 }

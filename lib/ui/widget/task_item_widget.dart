@@ -119,7 +119,7 @@ class _TaskItemWidgetState extends State<TaskItemWidget> {
                                           ElevatedButton(onPressed: (){
                                             if(_formKey.currentState!.validate()){
                                               _getStatusUpdate();
-                                              //Navigator.pop(context);
+                                              Navigator.pop(context);
                                             }
                                           }, child: const Icon(Icons.arrow_circle_right_rounded)),
                                         ],
@@ -140,12 +140,12 @@ class _TaskItemWidgetState extends State<TaskItemWidget> {
   }
 
   Future<void> _getStatusUpdate()async{
+    final userValue = widget.taskListModel.status= _statusTEControlar.text;
     final NetworkResponse response = await NetworkCaller.getRequest(
-        url: Urls.statusUpdateTaskUrl(widget.taskListModel.sId!,widget.taskListModel.status!),
+        url: Urls.statusUpdateTaskUrl(widget.taskListModel.sId!,userValue),
     );
 
     if(response.isSuccess){
-      widget.taskListModel.status= _statusTEControlar.text;
       ShowSnackBarMessage(context, 'Status Update Success');
     }else{
       ShowSnackBarMessage(context, 'Status Update Not Success');

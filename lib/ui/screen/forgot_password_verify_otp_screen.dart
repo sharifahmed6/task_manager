@@ -1,14 +1,20 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:task_manager/data/Urls/urls.dart';
+import 'package:task_manager/data/models/user_model.dart';
+import 'package:task_manager/data/service/network_caller.dart';
 import 'package:task_manager/ui/screen/reset_password_screen.dart';
 import 'package:task_manager/ui/screen/sign_in_screen.dart';
+import 'package:task_manager/ui/widget/center_circular_progress_indicator.dart';
 import 'package:task_manager/ui/widget/screen_background.dart';
+import 'package:task_manager/ui/widget/snack_bar_message.dart';
 import '../utlis/app_color.dart';
 
 class ForgotPasswordVerifyOtpScreen extends StatefulWidget {
-  const ForgotPasswordVerifyOtpScreen({super.key});
+   ForgotPasswordVerifyOtpScreen({super.key, required this.emailAddress});
   static const String name = 'forgot_password_verify_otp_screen';
+  final String emailAddress;
   @override
   State<ForgotPasswordVerifyOtpScreen> createState() => _ForgotPasswordVerifyOtpScreenState();
 }
@@ -16,11 +22,12 @@ class ForgotPasswordVerifyOtpScreen extends StatefulWidget {
 class _ForgotPasswordVerifyOtpScreenState extends State<ForgotPasswordVerifyOtpScreen> {
   final TextEditingController _otpTEControlar = TextEditingController();
   final GlobalKey<FormState>  _formKey = GlobalKey<FormState>();
+  bool _forgotPasswordVerifyEmailOtpInProgress = false;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      // appBar: AppBar(title: Text('SignIn'),),
+       //appBar: AppBar(title: Text(receiveEmail)),
       body: ScreenBackground(
         child: SingleChildScrollView(
           child: Padding(
@@ -46,11 +53,15 @@ class _ForgotPasswordVerifyOtpScreenState extends State<ForgotPasswordVerifyOtpS
                   const SizedBox(
                     height: 16,
                   ),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, ResetPasswordScreen.name);
-                      },
-                      child: const Icon(Icons.arrow_circle_right_rounded)),
+                  Visibility(
+                    visible: _forgotPasswordVerifyEmailOtpInProgress == false,
+                    replacement:  const CenterCircularProgressIndicator(),
+                    child: ElevatedButton(
+                        onPressed: () {
+                          onTapForgetPasswordOtp();
+                        },
+                        child: const Icon(Icons.arrow_circle_right_rounded)),
+                  ),
                   const SizedBox(
                     height: 48,
                   ),
@@ -65,6 +76,11 @@ class _ForgotPasswordVerifyOtpScreenState extends State<ForgotPasswordVerifyOtpS
       ),
     );
   }
+void onTapForgetPasswordOtp(){
+    if(_formKey.currentState!.validate()){
+      _getForgotPassowrdOtpVerify();
+    }
+}
 
   Widget _PinCodeTextField() {
     return PinCodeTextField(
@@ -84,6 +100,12 @@ class _ForgotPasswordVerifyOtpScreenState extends State<ForgotPasswordVerifyOtpS
                   enableActiveFill: true,
                   controller: _otpTEControlar,
                   appContext : context,
+                  validator: (String? value){
+                    if(value?.trim().isEmpty ?? true){
+                      return 'Please 6 digit password Required';
+                    }
+                    return null;
+                  },
                 );
   }
 
@@ -104,6 +126,22 @@ class _ForgotPasswordVerifyOtpScreenState extends State<ForgotPasswordVerifyOtpS
           ]),
     );
   }
+
+  Future<void> _getForgotPassowrdOtpVerify()async{
+    _forgotPasswordVerifyEmailOtpInProgress =true;
+    setState(() {});
+    NetworkResponse response = await NetworkCaller.getRequest(
+        url: Urls.verifyOtpEnailUrl(widget.emailAddress,_otpTEControlar.text)
+    );
+    _forgotPasswordVerifyEmailOtpInProgress = false;
+    setState(() {});
+    if(response.isSuccess){
+      Navigator.pushNamed(context, ResetPasswordScreen.name,arguments: {'email': widget.emailAddress, 'otp': _otpTEControlar.text});
+    }else{
+      ShowSnackBarMessage(context, "Something Went Wrong");
+    }
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose

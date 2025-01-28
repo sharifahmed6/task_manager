@@ -13,15 +13,10 @@ class ScreenBackground extends StatelessWidget {
           SvgPicture.asset(
             AssetPath.backgroundSvg,
             fit: BoxFit.cover,
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
+            width:MediaQuery.of(context).size.width,
+            height:MediaQuery.of(context).size.height,
           ),
-           SafeArea(
-                child: child,
-      
-            ),
-          
-      
+          SafeArea(child: child),
         ],
       ),
     );

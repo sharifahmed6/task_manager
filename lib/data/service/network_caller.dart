@@ -23,9 +23,12 @@ class NetworkCaller {
     try {
       Uri uri = Uri.parse(url);
       debugPrint('URL => $url');
-      Response response = await get(uri, headers: {
+      Response response = await get(
+          uri,
+          headers: {
         'token': AuthColtroller.accessToken ?? '',
-      });
+      }
+      );
       debugPrint('Response Code => ${response.statusCode}');
       debugPrint('Response data => ${response.body}');
       if (response.statusCode == 200) {
