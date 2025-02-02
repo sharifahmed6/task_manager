@@ -39,18 +39,20 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
     return Scaffold(
       appBar: const TMAppBar(),
       body: ScreenBackground(
-          child: Column(
-            children: [
-              _buildTaskSummeryByStatus(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Visibility(
-                  visible: _getTaskListByStatusInProgress == false,
-                    replacement: const CenterCircularProgressIndicator(),
-                    child: _buildTaskListView()
-                ),
-              )
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildTaskSummeryByStatus(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Visibility(
+                    visible: _getTaskListByStatusInProgress == false,
+                      replacement: const CenterCircularProgressIndicator(),
+                      child: _buildTaskListView()
+                  ),
+                )
+              ],
+            ),
           ),
       ),
       floatingActionButton: FloatingActionButton(

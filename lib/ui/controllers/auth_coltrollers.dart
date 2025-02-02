@@ -9,9 +9,9 @@ class AuthColtroller{
   static const String _accessTokenKey= 'access-token';
   static const String _accessDataKey= 'user-data';
 
-  static Future<void> saveUserData(String accessToken,UserModel model)async{
+  static Future<void> saveUserData(String token,UserModel model)async{
   SharedPreferences sharedPreferences= await SharedPreferences.getInstance();
-  await sharedPreferences.setString(_accessTokenKey, accessToken);
+  await sharedPreferences.setString(_accessTokenKey, token);
   await sharedPreferences.setString(_accessDataKey, jsonEncode(model.toJson()));
   }
 
