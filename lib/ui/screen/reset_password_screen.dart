@@ -1,8 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager/data/Urls/urls.dart';
-import 'package:task_manager/data/models/user_model.dart';
-import 'package:task_manager/data/service/network_caller.dart';
+import 'package:get/get.dart';
+import 'package:task_manager/ui/controllers/reset_password_controller.dart';
 import 'package:task_manager/ui/screen/sign_in_screen.dart';
 import 'package:task_manager/ui/widget/center_circular_progress_indicator.dart';
 import 'package:task_manager/ui/widget/screen_background.dart';
@@ -18,11 +17,10 @@ class ResetPasswordScreen extends StatefulWidget {
 }
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
-  final TextEditingController _newPasswordTEControlar = TextEditingController();
-  final TextEditingController _confrimPasswordTEControlar = TextEditingController();
+  final TextEditingController _newPasswordTEController = TextEditingController();
+  final TextEditingController _confirmPasswordTEController = TextEditingController();
   final GlobalKey<FormState>  _formKey = GlobalKey<FormState>();
-
-  bool _forgotPasswordInProgress = false;
+final ResetPasswordController _resetPasswordController = Get.find<ResetPasswordController>();
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -50,7 +48,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     height: 24,
                   ),
               TextFormField(
-                  controller: _newPasswordTEControlar,
+                  controller: _newPasswordTEController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(hintText: 'New Password'),
                   validator: (String? value){
@@ -66,7 +64,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     height: 16,
                   ),
                   TextFormField(
-                      controller: _confrimPasswordTEControlar,
+                      controller: _confirmPasswordTEController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(hintText: 'Confrim Password'),
                       validator: (String? value){
@@ -74,7 +72,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           return 'Please give 6 digit password';
                         } else if(value!.length < 6){
                           return 'Minimum Password Should Be 6 Digit';
-                        } else if(value != _newPasswordTEControlar.text){
+                        } else if(value != _newPasswordTEController.text){
                           return 'Password do not match';
                         }
                         return null;
@@ -83,17 +81,21 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   const SizedBox(
                     height: 16,
                   ),
-                  Visibility(
-                    visible: _forgotPasswordInProgress == false,
-                    replacement:  const CenterCircularProgressIndicator(),
-                    child: ElevatedButton(
-                        onPressed: () {
-                          if(_formKey.currentState!.validate()){
-                            _resetPasswordScreen();
+                  GetBuilder<ResetPasswordController>(
+                    builder: (controller) {
+                      return Visibility(
+                        visible: controller.resetPasswordInProgress == false,
+                        replacement:  const CenterCircularProgressIndicator(),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              if(_formKey.currentState!.validate()){
+                                _resetPasswordScreen();
 
-                          }
-                        },
-                        child: Text('Confrim')),
+                              }
+                            },
+                            child: const Text('Confirm')),
+                      );
+                    }
                   ),
                   const SizedBox(
                     height: 48,
@@ -114,46 +116,41 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     return RichText(
       text: TextSpan(
           text: "have an Account? ",
-          style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w600),
+          style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w600),
           children: [
             TextSpan(
                 text: 'Sign In',
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColor.themeColor,
                 ),
                 recognizer: TapGestureRecognizer()..onTap = () {
-                  Navigator.pushNamedAndRemoveUntil(context, SignInScreen.name , (value) => false);
+                  // Navigator.pushNamedAndRemoveUntil(context, SignInScreen.name , (value) => false);
+                  Get.offAllNamed(SignInScreen.name);
                 }),
           ]),
     );
   }
   Future<void> _resetPasswordScreen()async{
-  _forgotPasswordInProgress = true;
-  setState(() {});
-    Map<String,dynamic> requestBody = {
-      "email":widget.emailOtp['email'],
-      "OTP":widget.emailOtp['otp'],
-      "password":_newPasswordTEControlar.text
-    };
-    final NetworkResponse response = await NetworkCaller.getPost(url: Urls.recoverPassword,body: requestBody);
-    _forgotPasswordInProgress = false;
-    setState(() {});
-    if(response.isSuccess){
-      _clearTextFeilds();
+ final bool isSuccess = await _resetPasswordController.resetPassword(
+     widget.emailOtp['email'],
+     widget.emailOtp['otp'],
+     _newPasswordTEController.text);
+    if(isSuccess){
+      _clearTextFields();
       ShowSnackBarMessage(context, 'Password Update Success');
     }else{
       ShowSnackBarMessage(context, 'Password Not Update Success');
     }
   }
-  void _clearTextFeilds(){
-    _newPasswordTEControlar.clear();
-    _confrimPasswordTEControlar.clear();
+  void _clearTextFields(){
+    _newPasswordTEController.clear();
+    _confirmPasswordTEController.clear();
   }
   @override
   void dispose() {
     // TODO: implement dispose
-    _newPasswordTEControlar.dispose();
-    _confrimPasswordTEControlar.dispose();
+    _newPasswordTEController.dispose();
+    _confirmPasswordTEController.dispose();
     super.dispose();
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager/data/Urls/urls.dart';
-import 'package:task_manager/data/models/task_list_by_status_model.dart';
-import 'package:task_manager/data/service/network_caller.dart';
+import 'package:get/get.dart';
+import 'package:task_manager/data/models/task_list_model.dart';
+import 'package:task_manager/ui/controllers/complete_task_controller.dart';
 import 'package:task_manager/ui/widget/center_circular_progress_indicator.dart';
 import 'package:task_manager/ui/widget/screen_background.dart';
 import 'package:task_manager/ui/widget/snack_bar_message.dart';
@@ -16,8 +16,7 @@ class CompleteTaskListScreen extends StatefulWidget {
 }
 
 class _CompleteTaskListScreenState extends State<CompleteTaskListScreen> {
-  bool _getTaskListByStatusInProgress = false;
-  TaskListByStatusModel? newTaskListByStatusModel;
+  final CompleteTaskController _completeTaskController = Get.find<CompleteTaskController>();
 
   @override
   void initState() {
@@ -29,17 +28,21 @@ class _CompleteTaskListScreenState extends State<CompleteTaskListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const TMAppBar(),
+      appBar: TMAppBar(),
       body: ScreenBackground(
         child: SingleChildScrollView(
           child: Column(
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Visibility(
-                    visible:  _getTaskListByStatusInProgress == false,
-                    replacement: const CenterCircularProgressIndicator(),
-                    child: _buildTaskListView()
+                child: GetBuilder<CompleteTaskController>(
+                  builder: (controller) {
+                    return Visibility(
+                        visible:  controller.getTaskListInProgress == false,
+                        replacement: const CenterCircularProgressIndicator(),
+                        child: _buildTaskListView(_completeTaskController.taskList)
+                    );
+                  }
                 ),
               )
             ],
@@ -49,33 +52,24 @@ class _CompleteTaskListScreenState extends State<CompleteTaskListScreen> {
     );
   }
 
-  ListView _buildTaskListView() {
+  ListView _buildTaskListView(List<TaskListModel> taskList) {
     return ListView.builder(
         shrinkWrap: true,
         primary: false,
-        itemCount: newTaskListByStatusModel?.taskList?.length ?? 0,
+        itemCount: taskList.length,
         itemBuilder: (context, index) {
           return TaskItemWidget(
             status: 'Completed',
             color: Color(0xff28C177),
-            taskListModel: newTaskListByStatusModel!.taskList![index],
+            taskListModel: taskList[index],
           );
         });
   }
   Future<void> _getListCountByStatus() async {
-    _getTaskListByStatusInProgress = true;
-    setState(() {});
-    final NetworkResponse response =
-    await NetworkCaller.getRequest(url: Urls.taskListByStatusUrl('Completed'));
-
-    if (response.isSuccess) {
-      newTaskListByStatusModel =
-          TaskListByStatusModel.fromJson(response.responseData!);
-    } else {
-      ShowSnackBarMessage(context, response.errorMessage);
+    final bool isSuccess = await _completeTaskController.getCompleteTaskList();
+    if(!isSuccess){
+      ShowSnackBarMessage(context, _completeTaskController.errorMessage!);
     }
-    _getTaskListByStatusInProgress = false;
-    setState(() {});
-  }
+    }
 
 }

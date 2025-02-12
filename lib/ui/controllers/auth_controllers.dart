@@ -1,11 +1,12 @@
 import 'dart:convert';
-
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_manager/data/models/user_model.dart';
 
-class AuthColtroller{
+class AuthController extends GetxController{
   static String? accessToken;
   static UserModel? userModel;
+  UserModel? get userInfo => userModel;
   static const String _accessTokenKey= 'access-token';
   static const String _accessDataKey= 'user-data';
 

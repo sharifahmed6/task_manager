@@ -11,7 +11,7 @@ class TaskListByStatusModel {
     if (json['data'] != null) {
       taskList = <TaskListModel>[];
       json['data'].forEach((v) {
-        taskList!.add(new TaskListModel.fromJson(v));
+        taskList!.add(TaskListModel.fromJson(v));
       });
     }
   }

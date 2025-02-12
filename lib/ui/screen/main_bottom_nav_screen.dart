@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager/data/models/task_list_model.dart';
 import 'package:task_manager/ui/screen/cancelled_task_list_screen.dart';
 import 'package:task_manager/ui/screen/complete_task_list_screen.dart';
 import 'package:task_manager/ui/screen/new_task_list_screen.dart';

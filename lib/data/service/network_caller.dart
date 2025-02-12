@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:task_manager/app.dart';
-import 'package:task_manager/ui/controllers/auth_coltrollers.dart';
+import 'package:task_manager/ui/controllers/auth_controllers.dart';
 import 'package:task_manager/ui/screen/sign_in_screen.dart';
 
 class NetworkResponse {
@@ -26,7 +26,7 @@ class NetworkCaller {
       Response response = await get(
           uri,
           headers: {
-        'token': AuthColtroller.accessToken ?? '',
+        'token': AuthController.accessToken ?? '',
       }
       );
       debugPrint('Response Code => ${response.statusCode}');
@@ -68,7 +68,7 @@ class NetworkCaller {
         uri,
         headers: {
           'content-type': 'application/json',
-          'token': AuthColtroller.accessToken ?? '',
+          'token': AuthController.accessToken ?? '',
         },
         body: jsonEncode(body),
       );
@@ -98,7 +98,7 @@ class NetworkCaller {
   }
 
   static Future<void> _logOut() async {
-    await AuthColtroller.clearData();
+    await AuthController.clearData();
     Navigator.pushNamedAndRemoveUntil(TaskManager.navigatorKey.currentContext!,
         SignInScreen.name, (context) => false);
   }

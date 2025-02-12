@@ -5,7 +5,7 @@ import 'package:http/http.dart';
 import 'package:task_manager/data/Urls/urls.dart';
 import 'package:task_manager/data/models/task_list_model.dart';
 import 'package:task_manager/data/service/network_caller.dart';
-import 'package:task_manager/ui/controllers/auth_coltrollers.dart';
+import 'package:task_manager/ui/controllers/auth_controllers.dart';
 import 'package:task_manager/ui/widget/snack_bar_message.dart';
 
 class TaskItemWidget extends StatefulWidget {

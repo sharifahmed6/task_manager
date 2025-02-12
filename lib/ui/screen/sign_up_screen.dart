@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager/data/Urls/urls.dart';
-import 'package:task_manager/data/service/network_caller.dart';
+import 'package:get/get.dart';
+import 'package:task_manager/ui/controllers/sign_up_controller.dart';
 import 'package:task_manager/ui/widget/center_circular_progress_indicator.dart';
 import 'package:task_manager/ui/widget/screen_background.dart';
 import 'package:task_manager/ui/widget/snack_bar_message.dart';
@@ -15,15 +15,14 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController _emailTEControlar = TextEditingController();
-  final TextEditingController _firstNameTEControlar = TextEditingController();
-  final TextEditingController _lastNameTEControlar = TextEditingController();
-  final TextEditingController _mobileNumberTEControlar =
+  final TextEditingController _emailTEController = TextEditingController();
+  final TextEditingController _firstNameTEController = TextEditingController();
+  final TextEditingController _lastNameTEController = TextEditingController();
+  final TextEditingController _mobileNumberTEController =
       TextEditingController();
-  final TextEditingController _passwordTEControlar = TextEditingController();
+  final TextEditingController _passwordTEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  bool _signUpInProgress = false;
+  final SignUpController _signUpController = Get.find<SignUpController>();
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -47,7 +46,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 24,
                   ),
                   TextFormField(
-                    controller: _emailTEControlar,
+                    controller: _emailTEController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(hintText: 'Email'),
                     validator: (String? value) {
@@ -61,7 +60,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 16,
                   ),
                   TextFormField(
-                    controller: _firstNameTEControlar,
+                    controller: _firstNameTEController,
                     decoration: const InputDecoration(hintText: 'First Name'),
                     validator: (String? value) {
                       if (value?.trim().isEmpty ?? true) {
@@ -74,7 +73,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 16,
                   ),
                   TextFormField(
-                    controller: _lastNameTEControlar,
+                    controller: _lastNameTEController,
                     decoration: const InputDecoration(hintText: 'Last Name'),
                     validator: (String? value) {
                       if (value?.trim().isEmpty ?? true) {
@@ -87,7 +86,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 16,
                   ),
                   TextFormField(
-                    controller: _mobileNumberTEControlar,
+                    controller: _mobileNumberTEController,
                     decoration:
                         const InputDecoration(hintText: 'Mobile Number'),
                     validator: (String? value) {
@@ -101,7 +100,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 16,
                   ),
                   TextFormField(
-                    controller: _passwordTEControlar,
+                    controller: _passwordTEController,
                     obscureText: true,
                     decoration: const InputDecoration(hintText: 'Password'),
                     validator: (String? value) {
@@ -117,12 +116,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   const SizedBox(
                     height: 24,
                   ),
-                  Visibility(
-                    visible: _signUpInProgress == false,
-                    replacement:const CenterCircularProgressIndicator(),
-                    child: ElevatedButton(
-                        onPressed: _onTapSignupButton,
-                        child: const Icon(Icons.arrow_circle_right_rounded)),
+                  GetBuilder<SignUpController>(
+                    builder: (controller) {
+                      return Visibility(
+                        visible: controller.signUpInProgress == false,
+                        replacement:const CenterCircularProgressIndicator(),
+                        child: ElevatedButton(
+                            onPressed: _onTapSignupButton,
+                            child: const Icon(Icons.arrow_circle_right_rounded)),
+                      );
+                    }
                   ),
                   const SizedBox(
                     height: 48,
@@ -141,39 +144,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void _onTapSignupButton() {
     if (_formKey.currentState!.validate()) {
-      _registeUser();
+      _registratonUser();
     }
   }
 
-  Future<void> _registeUser() async {
-    _signUpInProgress = true;
-    setState(() {});
-    Map<String, dynamic> requestBody = {
-      "email": _emailTEControlar.text.trim(),
-      "firstName": _firstNameTEControlar.text.trim(),
-      "lastName": _lastNameTEControlar.text.trim(),
-      "mobile": _mobileNumberTEControlar.text.trim(),
-      "password": _passwordTEControlar.text,
-      "photo": ""
-    };
-    final NetworkResponse response = await NetworkCaller.getPost(
-        url: Urls.registrationUrls, body: requestBody);
-    if (response.isSuccess) {
-      _signUpInProgress=false;
-      setState(() {});
-      _clearTextFields();
-      ShowSnackBarMessage(context, 'New User Registration Successful');
-    } else {
-      ShowSnackBarMessage(context, response.errorMessage);
-    }
+  Future<void> _registratonUser() async {
+   final bool isSuccess = await _signUpController.signUp(
+       _emailTEController.text.trim(),
+       _firstNameTEController.text.trim(),
+       _lastNameTEController.text.trim(),
+       _mobileNumberTEController.text.trim(),
+       _passwordTEController.text);
+   if(isSuccess){
+     _clearTextFields();
+     ShowSnackBarMessage(context, 'Registration Success');
+   }else{
+     ShowSnackBarMessage(context, 'Registration Not Success');
+   }
   }
 
   void _clearTextFields() {
-    _emailTEControlar.clear();
-    _firstNameTEControlar.clear();
-    _lastNameTEControlar.clear();
-    _mobileNumberTEControlar.clear();
-    _passwordTEControlar.clear();
+    _emailTEController.clear();
+    _firstNameTEController.clear();
+    _lastNameTEController.clear();
+    _mobileNumberTEController.clear();
+    _passwordTEController.clear();
   }
 
   Widget builtSignInSection() {
@@ -198,11 +193,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void dispose() {
     // TODO: implement dispose
-    _emailTEControlar.dispose();
-    _firstNameTEControlar.dispose();
-    _lastNameTEControlar.dispose();
-    _mobileNumberTEControlar.dispose();
-    _passwordTEControlar.dispose();
+    _emailTEController.dispose();
+    _firstNameTEController.dispose();
+    _lastNameTEController.dispose();
+    _mobileNumberTEController.dispose();
+    _passwordTEController.dispose();
     super.dispose();
   }
 }
